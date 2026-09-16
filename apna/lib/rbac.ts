@@ -8,7 +8,7 @@ export async function requireRole(allowedRoles: string[]) {
     return { authorized: false, status: 401, message: 'Unauthorized: Please sign in.' };
   }
 
-  const userRole = (session.user as any).role || 'user';
+  const userRole = session.user.role || 'user';
 
   if (!allowedRoles.includes(userRole)) {
     return { authorized: false, status: 403, message: 'Forbidden: Insufficient permissions.' };

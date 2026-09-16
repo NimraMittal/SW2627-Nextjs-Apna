@@ -17,6 +17,13 @@ model User {
   createdAt DateTime @default(now())
 }
 
+model Company {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
 model Task {
   id          String   @id @default(uuid())
   title       String

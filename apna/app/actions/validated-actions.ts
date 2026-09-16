@@ -44,7 +44,7 @@ export async function validateAndCreateTask(
   }
 
   // Successful mutation logic (Simulated DB save)
-  const { title, priority } = parsed.data;
+  const { title } = parsed.data;
 
   // Clear form or return success response
   return {

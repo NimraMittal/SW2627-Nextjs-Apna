@@ -2,7 +2,7 @@
 
 import 'server-only'; // Proves the action runs exclusively on the server
 
-export async function createTaskAction(prevState: any, formData: FormData) {
+export async function createTaskAction(_prevState: unknown, formData: FormData) {
   try {
     const title = formData.get('title')?.toString();
     const priority = formData.get('priority')?.toString() || 'medium';

@@ -6,7 +6,7 @@ import bcrypt from 'bcryptjs';
 if (!globalThis.mockUsersDB) globalThis.mockUsersDB = [];
 
 export async function signUpUser(
-  _prevState: any,
+  _prevState: unknown,
   formData: FormData,
 ): Promise<{ success: boolean; message: string }> {
   try {
@@ -37,7 +37,7 @@ export async function signUpUser(
     globalThis.mockUsersDB!.push(newUser);
 
     return { success: true, message: 'Sign up successful! You can now sign in.' };
-  } catch (err) {
+  } catch {
     return { success: false, message: 'Unable to sign up user.' };
   }
 }
