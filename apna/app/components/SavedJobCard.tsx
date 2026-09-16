@@ -1,7 +1,15 @@
 import { MapPin, Briefcase, Clock } from "lucide-react";
 
 // Shows ONE saved job card. Data comes in through props.
-export default function SavedJobCard(props: any) {
+type SavedJobCardProps = {
+  title: string;
+  company: string;
+  location: string;
+  salary: string;
+  savedAgo: string;
+};
+
+export default function SavedJobCard(props: SavedJobCardProps) {
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-5">
       

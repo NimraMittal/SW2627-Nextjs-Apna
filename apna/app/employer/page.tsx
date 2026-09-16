@@ -6,19 +6,20 @@ import EmployerSidebar from "../components/EmployerSidebar";
 import { getCompanyId, setCompanyId } from "@/lib/companyId";
 
 export default function EmployerDashboard() {
-  const [companyId, setCompanyIdState] = useState<string | null>(null);
-  const [jobs, setJobs] = useState<any[]>([]);
+  type Job = {
+    id: string;
+    title: string;
+    location: string;
+    applications?: unknown[];
+  };
+
+  const [companyId, setCompanyIdState] = useState<string | null>(() => getCompanyId());
+  const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Temporary company setup fields (shown only if no companyId saved yet)
   const [companyName, setCompanyName] = useState("");
   const [companyEmail, setCompanyEmail] = useState("");
-
-  // On page load, check if we already have a companyId saved
-  useEffect(() => {
-    const id = getCompanyId();
-    setCompanyIdState(id);
-  }, []);
 
   // Once we have a companyId, fetch that company's jobs
   useEffect(() => {

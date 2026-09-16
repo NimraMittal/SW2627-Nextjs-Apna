@@ -1,6 +1,14 @@
+import type { LucideIcon } from "lucide-react";
+
 // This component just displays ONE stat box.
 // "props" is the data passed in when we use <StatCard ... /> somewhere else.
-export default function StatCard(props: any) {
+type StatCardProps = {
+  icon: LucideIcon;
+  label: string;
+  value: string | number;
+};
+
+export default function StatCard(props: StatCardProps) {
   const Icon = props.icon;
 
   return (

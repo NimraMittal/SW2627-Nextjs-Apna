@@ -1,7 +1,17 @@
 import { Bookmark } from "lucide-react";
 
 // Shows ONE job listing. Data comes in through props.
-export default function JobCard(props: any) {
+type JobCardProps = {
+  title: string;
+  company: string;
+  location: string;
+  type: string;
+  salary: string;
+  mode: string;
+  postedAgo: string;
+};
+
+export default function JobCard(props: JobCardProps) {
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-5">
       

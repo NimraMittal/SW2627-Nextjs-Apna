@@ -1,7 +1,15 @@
 import { FileText } from "lucide-react";
 
 // Shows ONE resume in the list. Data comes in through props.
-export default function ResumeCard(props: any) {
+type ResumeCardProps = {
+  isPrimary: boolean;
+  fileName: string;
+  fileType: string;
+  fileSize: string;
+  uploadedDate: string;
+};
+
+export default function ResumeCard(props: ResumeCardProps) {
   return (
     <div
       className={

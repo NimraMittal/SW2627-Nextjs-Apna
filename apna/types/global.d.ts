@@ -1,7 +1,24 @@
 declare global {
   // in-memory mock DB for development/demo only
-  // eslint-disable-next-line no-var
   var mockUsersDB: { id: string; email: string; passwordHash: string }[] | undefined;
+}
+
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      role?: string;
+    } & DefaultSession['user'];
+  }
+
+  interface User {
+    role?: string;
+  }
+}
+
+declare module 'next-auth/jwt' {
+  interface JWT {
+    role?: string;
+  }
 }
 
 export {};
