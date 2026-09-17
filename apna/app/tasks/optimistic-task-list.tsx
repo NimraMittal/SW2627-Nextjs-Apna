@@ -1,7 +1,7 @@
 'use client';
 
 import { useOptimistic, useState, useTransition } from 'react';
-import { createTask } from '@/actions/task-actions';
+import { createTask } from '@/app/actions/task-actions';
 
 type Task = {
   id: string;
