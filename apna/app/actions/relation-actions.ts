@@ -20,7 +20,8 @@ export async function getUsersWithTasks() {
       },
     });
     return { success: true, users };
-  } catch (error: any) {
-    return { success: false, error: error.message };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'An unknown error occurred';
+    return { success: false, error: message };
   }
 }
