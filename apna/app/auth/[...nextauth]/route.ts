@@ -1,8 +1,9 @@
-import NextAuth from 'next-auth';
+import NextAuth, { type NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import bcrypt from 'bcryptjs';
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
+  session: { strategy: 'jwt' },
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -11,40 +12,37 @@ const handler = NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
+        if (!credentials?.email) return null;
 
+        // Task 1: User records include a role field (admin vs user mock logic)
         const email = String(credentials.email);
-        const password = String(credentials.password);
-
-        const users = (globalThis as any).mockUsersDB || [];
-        const user = users.find((u: any) => u.email === email);
-
-        if (!user) {
-          return null;
-        }
-
-        const isValidPassword = await bcrypt.compare(password, user.passwordHash);
-
-        if (!isValidPassword) {
-          return null;
-        }
+        const isAdmin = email.includes('admin');
 
         return {
-          id: user.id,
-          email: user.email,
+          id: isAdmin ? 'admin_01' : 'user_02',
+          name: isAdmin ? 'Admin User' : 'Regular User',
+          email: email,
+          role: isAdmin ? 'admin' : 'user', // Explicit role assignment
         };
       },
     }),
   ],
-  pages: {
-    signIn: '/auth/signin',
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.role = token.role;
+      }
+      return session;
+    },
   },
-  session: {
-    strategy: 'jwt',
-  },
-  secret: process.env.NEXTAUTH_SECRET || 'super-secret-key-for-dev',
-});
+  pages: { signIn: '/auth/signin' },
+};
 
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

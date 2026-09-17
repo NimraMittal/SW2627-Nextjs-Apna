@@ -1,7 +1,7 @@
 import { MoreVertical, ChevronRight, Calendar, Archive } from "lucide-react";
 
 // Colors change depending on the application's status
-const statusStyles: any = {
+const statusStyles: Record<string, { border: string; dot: string; text: string }> = {
   Pending: { border: "border-l-orange-400", dot: "bg-orange-400", text: "text-orange-500" },
   Viewed: { border: "border-l-blue-400", dot: "bg-blue-400", text: "text-blue-500" },
   Shortlisted: { border: "border-l-green-400", dot: "bg-green-500", text: "text-green-600" },
@@ -9,7 +9,17 @@ const statusStyles: any = {
 };
 
 // Shows ONE application card. Data comes in through props.
-export default function ApplicationCard(props: any) {
+type ApplicationCardProps = {
+  title: string;
+  company: string;
+  location: string;
+  status: string;
+  appliedDate: string;
+  interview?: string | null;
+  updatedAgo: string;
+};
+
+export default function ApplicationCard(props: ApplicationCardProps) {
   const style = statusStyles[props.status];
 
   return (

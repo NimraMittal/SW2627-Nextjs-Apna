@@ -3,6 +3,12 @@ import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
+type Task = {
+  id: string;
+  title: string;
+  priority: string;
+};
+
 export default async function RevalidatedListPage() {
   const tasks = getMockTasks();
 
@@ -23,7 +29,7 @@ export default async function RevalidatedListPage() {
       </div>
 
       <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        {tasks.map((task: any) => (
+        {tasks.map((task: Task) => (
           <li
             key={task.id}
             style={{ padding: '12px', border: '1px solid #ddd', borderRadius: '6px', background: '#f9f9f9' }}

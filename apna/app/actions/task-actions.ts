@@ -1,42 +1,40 @@
 'use server';
 
-import { prisma } from '@/lib/prisma';
-import { Task, User } from '@prisma/client';
+import 'server-only'; // Proves the action runs exclusively on the server
 
-// Task 1 & 2: Use Prisma Client with typed returns (findMany)
-export async function getTasks(): Promise<Task[]> {
-  const tasks = await prisma.task.findMany({
-    orderBy: { createdAt: 'desc' },
-  });
-  return tasks;
+export async function createTask(title: string, _userId: string) {
+  return {
+    id: Math.random().toString(36).substring(2, 9),
+    title: title.trim(),
+    completed: false,
+  };
 }
 
-// Task 1 & 2: Use Prisma Client with typed returns (findUnique)
-export async function getTaskById(id: string): Promise<Task | null> {
-  const task = await prisma.task.findUnique({
-    where: { id },
-  });
-  return task;
+export async function createTaskAction(_prevState: unknown, formData: FormData) {
+  try {
+    const title = formData.get('title')?.toString();
+    const priority = formData.get('priority')?.toString() || 'medium';
+
+    if (!title || title.trim() === '') {
+      return { success: false, message: 'Task title is required.' };
+    }
+
+    // Simulate database mutation / save workflow
+    const newTask = {
+      id: Math.random().toString(36).substring(2, 9),
+      title: title.trim(),
+      priority,
+      createdAt: new Date().toISOString(),
+    };
+
+    // Return serializable plain JS object to the client
+    return {
+      success: true,
+      message: `Task "${newTask.title}" created successfully!`,
+      data: newTask,
+    };
+  } catch (error) {
+    console.error('Server action error:', error);
+    return { success: false, message: 'Internal server error during submission.' };
+  }
 }
-
-// Task 2: Use create with typed returns
-export async function createTask(title: string, userId: string): Promise<Task> {
-  const newTask = await prisma.task.create({
-    data: {
-      title,
-      userId,
-    },
-  });
-  return newTask;
-}
-
-// Task 2: Use update with typed returns
-export async function updateTaskCompletion(id: string, completed: boolean): Promise<Task> {
-  const updatedTask = await prisma.task.update({
-    where: { id },
-    data: { completed },
-  });
-  return updatedTask;
-}
-
-

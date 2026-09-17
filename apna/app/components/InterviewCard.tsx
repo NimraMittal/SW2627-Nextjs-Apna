@@ -1,7 +1,16 @@
 import { Calendar, Clock, Video } from "lucide-react";
 
 // Displays ONE interview card. Data comes in through props.
-export default function InterviewCard(props: any) {
+type InterviewCardProps = {
+  initial: string;
+  role: string;
+  company: string;
+  date: string;
+  time: string;
+  platform: string;
+};
+
+export default function InterviewCard(props: InterviewCardProps) {
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-5">
       
