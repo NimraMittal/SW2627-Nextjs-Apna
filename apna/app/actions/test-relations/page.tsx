@@ -1,5 +1,4 @@
-import { getUsersWithTasks } from '@/actions/relation-actions';
-
+import { getUsersWithTasks } from '../relation-actions';
 export default async function TestRelationsPage() {
   const result = await getUsersWithTasks();
 
