@@ -2,6 +2,14 @@
 
 import 'server-only'; // Proves the action runs exclusively on the server
 
+export async function createTask(title: string, _userId: string) {
+  return {
+    id: Math.random().toString(36).substring(2, 9),
+    title: title.trim(),
+    completed: false,
+  };
+}
+
 export async function createTaskAction(_prevState: unknown, formData: FormData) {
   try {
     const title = formData.get('title')?.toString();
