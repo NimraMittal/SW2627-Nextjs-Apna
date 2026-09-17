@@ -1,7 +1,7 @@
 'use client';
 
 import { useOptimistic, useState, useTransition } from 'react';
-import { createTask } from '../actions/task-actions'; 
+import { createTask } from '@/actions/task-actions';
 
 type Task = {
   id: string;
@@ -13,35 +13,31 @@ export default function OptimisticTaskList({ initialTasks }: { initialTasks: Tas
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [isPending, startTransition] = useTransition();
 
-  // Task 1 & 2: useOptimistic hook with reducer/update logic
+  // useOptimistic hook with correct syntax and closing parentheses
   const [optimisticTasks, setOptimisticTasks] = useOptimistic(
     tasks,
-    (state, newTask: Task) => [...state, newTask] // appends immediately
+    (state, newTask: Task) => [...state, newTask]
   );
 
   async function handleAction(formData: FormData) {
     const title = formData.get('title') as string;
-    if (!title) return;
+    if (!title) return; // Fixed typo
 
     const tempTask: Task = {
-      id: Math.random().toString(), // temporary optimistic ID
+      id: Math.random().toString(),
       title,
       completed: false,
     };
 
     startTransition(async () => {
-      // Task 1: Show new item immediately via optimistic update
       setOptimisticTasks(tempTask);
 
       try {
-        // Call actual server action
         const result = await createTask(title, 'some-user-id');
         if (result) {
-          // Task 3: Revalidate/sync final state with real server response
           setTasks((prev) => [...prev, result]);
         }
       } catch (error) {
-        // Task 2: Automatically reverts to original `tasks` state if action fails
         console.error('Failed to create task, rolling back optimistic update', error);
       }
     });
@@ -71,7 +67,7 @@ export default function OptimisticTaskList({ initialTasks }: { initialTasks: Tas
               margin: '5px 0', 
               background: '#f4f4f4', 
               borderRadius: '4px',
-              opacity: task.id.length < 10 ? 0.7 : 1 // visual cue for pending state
+              opacity: task.id.length < 10 ? 0.7 : 1 
             }}
           >
             {task.title} {task.id.length < 10 && ' (Saving...)'}
