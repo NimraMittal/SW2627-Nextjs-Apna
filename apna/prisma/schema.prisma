@@ -1,45 +1,125 @@
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
   provider = "prisma-client-js"
 }
 
+// ─── User ────────────────────────────────────────────────────────────────────
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
-  bio       String?
-  tasks     Task[]
-  applications Application[]
-  createdAt DateTime @default(now())
-}
-
-model Company {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  createdAt DateTime @default(now())
-}
-
-model Task {
-  id          String   @id @default(uuid())
-  title       String
-  description String?
-  completed   Boolean  @default(false)
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-}
-
-model Application {
   id           String   @id @default(uuid())
-  candidateName String
-  jobTitle     String
-  status       String   @default("PENDING")
-  userId        String?
-  user          User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
-  createdAt    DateTime @default(now())
+  name         String?
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(CANDIDATE)
+  bio          String?
+  resumeUrl    String?
+  companyId    String?  // only set for EMPLOYER role
+  company      Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+
+  // Relations
+  applications  Application[]  @relation("CandidateApplications")
+  notifications Notification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
+enum Role {
+  CANDIDATE
+  EMPLOYER
+}
+
+// ─── Company ──────────────────────────────────────────────────────────────────
+model Company {
+  id          String   @id @default(uuid())
+  name        String
+  email       String   @unique
+  description String?
+  logoUrl     String?
+
+  jobs         Job[]
+  users        User[]
+  applications Application[]
+
+  createdAt DateTime @default(now())
+}
+
+// ─── Job ─────────────────────────────────────────────────────────────────────
+model Job {
+  id          String    @id @default(uuid())
+  companyId   String
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  location    String
+  salary      String?
+  skills      String[]  // e.g. ["React", "TypeScript"]
+  type        String    @default("Full-time") // Full-time | Part-time | Contract | Internship
+  mode        String    @default("On-site")   // Remote | Hybrid | On-site
+  status      JobStatus @default(OPEN)
+
+  applications Application[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum JobStatus {
+  OPEN
+  CLOSED
+  DRAFT
+}
+
+// ─── Application ─────────────────────────────────────────────────────────────
+model Application {
+  id            String            @id @default(uuid())
+  candidateId   String
+  candidate     User              @relation("CandidateApplications", fields: [candidateId], references: [id], onDelete: Cascade)
+  jobId         String
+  job           Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  companyId     String
+  company       Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  currentStatus ApplicationStatus @default(PENDING)
+
+  statusHistory StatusHistory[]
+  notifications Notification[]
+
+  appliedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([candidateId, jobId]) // one application per candidate per job
+}
+
+enum ApplicationStatus {
+  PENDING
+  VIEWED
+  SHORTLISTED
+  REJECTED
+}
+
+// ─── StatusHistory ────────────────────────────────────────────────────────────
+model StatusHistory {
+  id             String            @id @default(uuid())
+  applicationId  String
+  application    Application       @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  previousStatus ApplicationStatus
+  newStatus      ApplicationStatus
+  changedBy      String            // userId of the person who made the change
+  changedAt      DateTime          @default(now())
+}
+
+// ─── Notification ─────────────────────────────────────────────────────────────
+model Notification {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applicationId String?
+  application   Application? @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+  type          String   // e.g. "STATUS_CHANGED"
+  message       String
+  isRead        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+}

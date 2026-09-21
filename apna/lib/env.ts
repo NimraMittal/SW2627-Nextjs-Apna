@@ -15,21 +15,15 @@ export const env = {
   database: {
     url: requireEnv('DATABASE_URL'),
   },
-  api: {
-    secretKey: requireEnv('API_SECRET_KEY'),
+  auth: {
+    nextauthSecret: requireEnv('NEXTAUTH_SECRET'),
+    nextauthUrl: process.env.NEXTAUTH_URL || 'http://localhost:3000',
   },
-  jwt: {
-    secret: requireEnv('JWT_SECRET'),
-  },
-  stripe: {
-    secretKey: requireEnv('STRIPE_SECRET_KEY'),
-  },
- 
+
   // Public variables
   public: {
-    apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
-    appName: process.env.NEXT_PUBLIC_APP_NAME || 'My App',
-    stripePublishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'not-set',
-    analyticsId: process.env.NEXT_PUBLIC_ANALYTICS_ID || '',
+    apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
+    appName: process.env.NEXT_PUBLIC_APP_NAME || 'Apna Job Tracker',
+    siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
   },
 };
