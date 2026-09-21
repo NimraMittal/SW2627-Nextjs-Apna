@@ -91,7 +91,7 @@ async function main() {
     },
   });
 
-  const job2 = await prisma.job.upsert({
+  await prisma.job.upsert({
     where: { id: 'seed-job-backend-node' },
     update: {},
     create: {
@@ -125,7 +125,7 @@ async function main() {
     },
   });
 
-  const job4 = await prisma.job.upsert({
+  await prisma.job.upsert({
     where: { id: 'seed-job-ui-ux-designer' },
     update: {},
     create: {

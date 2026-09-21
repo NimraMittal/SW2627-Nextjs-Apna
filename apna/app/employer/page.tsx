@@ -47,7 +47,7 @@ export default function EmployerDashboard() {
   }, [companyId]);
 
   useEffect(() => {
-    loadJobs();
+    void Promise.resolve().then(() => loadJobs());
   }, [loadJobs]);
 
   const totalApplicants = jobs.reduce((sum, j) => sum + (j.applicantCount || 0), 0);

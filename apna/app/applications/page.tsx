@@ -77,7 +77,7 @@ export default function ApplicationsPage() {
   }, []);
 
   useEffect(() => {
-    fetchApplications();
+    void Promise.resolve().then(() => fetchApplications());
   }, [fetchApplications]);
 
   // Connect to SSE for real-time application updates

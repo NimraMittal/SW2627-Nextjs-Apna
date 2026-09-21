@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import EmployerSidebar from "../../../components/EmployerSidebar";
 import ApplicantCard from "../../../components/ApplicantCard";
-import { ArrowLeft, Users, Briefcase, RefreshCw } from "lucide-react";
+import { ArrowLeft, Users, RefreshCw } from "lucide-react";
 
 type Applicant = {
   id: string;
@@ -65,7 +65,7 @@ export default function JobApplicantsPage() {
   }, [jobId]);
 
   useEffect(() => {
-    loadData();
+    void Promise.resolve().then(() => loadData());
   }, [loadData]);
 
   return (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bookmark, Check, Loader2, MapPin, DollarSign, Briefcase, Info } from "lucide-react";
+import { Bookmark, Check, Loader2, MapPin, DollarSign, Briefcase } from "lucide-react";
 
 export type JobCardProps = {
   id: string;
