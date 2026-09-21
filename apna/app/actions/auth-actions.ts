@@ -1,43 +1,73 @@
 'use server';
 
 import bcrypt from 'bcryptjs';
+import { prisma } from '@/lib/prisma';
 
-// Initialize mock DB on globalThis for server runtime
-if (!globalThis.mockUsersDB) globalThis.mockUsersDB = [];
+export type SignUpState = {
+  success: boolean;
+  message: string;
+};
 
 export async function signUpUser(
-  _prevState: unknown,
+  _prevState: SignUpState,
   formData: FormData,
-): Promise<{ success: boolean; message: string }> {
+): Promise<SignUpState> {
   try {
-    const email = formData.get('email')?.toString().trim();
+    const name = formData.get('name')?.toString().trim();
+    const email = formData.get('email')?.toString().toLowerCase().trim();
     const password = formData.get('password')?.toString();
+    const role = formData.get('role')?.toString() as 'CANDIDATE' | 'EMPLOYER' | undefined;
+    const companyName = formData.get('companyName')?.toString().trim();
 
-    if (!email || !password) {
-      return { success: false, message: 'Email and password are required.' };
+    if (!name || !email || !password || !role) {
+      return { success: false, message: 'All fields are required.' };
+    }
+
+    if (!['CANDIDATE', 'EMPLOYER'].includes(role)) {
+      return { success: false, message: 'Invalid role selected.' };
+    }
+
+    if (password.length < 6) {
+      return { success: false, message: 'Password must be at least 6 characters.' };
     }
 
     // Check if user already exists
-    const existingUser = globalThis.mockUsersDB!.find((u) => u.email === email);
-    if (existingUser) {
-      return { success: false, message: 'User already exists with this email.' };
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) {
+      return { success: false, message: 'An account with this email already exists.' };
     }
 
-    // Hash password with 12 salt rounds
-    const saltRounds = 12;
-    const passwordHash = await bcrypt.hash(password, saltRounds);
+    const passwordHash = await bcrypt.hash(password, 12);
 
-    // Plain-text password is never stored or logged
-    const newUser = {
-      id: Date.now().toString(),
-      email,
-      passwordHash,
-    };
+    // For employers, create or find their company
+    let companyId: string | undefined;
+    if (role === 'EMPLOYER') {
+      if (!companyName) {
+        return { success: false, message: 'Company name is required for employers.' };
+      }
+      // Check if company with this email already exists
+      let company = await prisma.company.findUnique({ where: { email } });
+      if (!company) {
+        company = await prisma.company.create({
+          data: { name: companyName, email },
+        });
+      }
+      companyId = company.id;
+    }
 
-    globalThis.mockUsersDB!.push(newUser);
+    await prisma.user.create({
+      data: {
+        name,
+        email,
+        passwordHash,
+        role,
+        ...(companyId ? { companyId } : {}),
+      },
+    });
 
-    return { success: true, message: 'Sign up successful! You can now sign in.' };
-  } catch {
-    return { success: false, message: 'Unable to sign up user.' };
+    return { success: true, message: 'Account created! You can now log in.' };
+  } catch (err) {
+    console.error('signUpUser error:', err);
+    return { success: false, message: 'Something went wrong. Please try again.' };
   }
 }

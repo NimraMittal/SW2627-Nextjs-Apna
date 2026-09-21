@@ -1,106 +1,62 @@
 // app/api/applications/route.ts
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 /**
  * GET /api/applications
- * Retrieves all submitted job applications ordered chronologically.
+ * Returns the logged-in candidate's applications.
  */
 export async function GET() {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: { code: 'UNAUTHORIZED', message: 'Login required.' } },
+        { status: 401 }
+      );
+    }
+
+    const candidateId = session.user.id;
     const applications = await prisma.application.findMany({
-      orderBy: {
-        createdAt: "desc",
+      where: { candidateId },
+      include: {
+        job: { select: { id: true, title: true, mode: true, type: true, location: true } },
+        company: { select: { name: true } },
+        statusHistory: {
+          orderBy: { changedAt: 'desc' },
+          take: 5,
+        },
       },
+      orderBy: { appliedAt: 'desc' },
     });
 
+    const data = applications.map((a) => ({
+      id: a.id,
+      jobId: a.jobId,
+      jobTitle: a.job.title,
+      jobLocation: a.job.location,
+      jobMode: a.job.mode,
+      jobType: a.job.type,
+      companyName: a.company.name,
+      candidateId: a.candidateId,
+      candidateName: session.user.name ?? '',
+      currentStatus: a.currentStatus,
+      appliedAt: a.appliedAt.toISOString(),
+      updatedAt: a.updatedAt.toISOString(),
+      statusHistory: a.statusHistory.map((h) => ({
+        previousStatus: h.previousStatus,
+        newStatus: h.newStatus,
+        changedAt: h.changedAt.toISOString(),
+      })),
+    }));
+
+    return NextResponse.json({ success: true, data });
+  } catch (err) {
+    console.error('GET /api/applications error:', err);
     return NextResponse.json(
-      {
-        success: true,
-        count: applications.length,
-        data: applications,
-      },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error("GET /api/applications error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to fetch applications from the database.",
-        },
-      },
-      { status: 500 }
-    );
-  }
-}
-
-/**
- * POST /api/applications
- * Validates payload and creates a new candidate application record.
- */
-export async function POST(req: Request) {
-  try {
-    // 1. Parse JSON body from the incoming request
-    const body = await req.json();
-    const { candidateName, jobTitle } = body;
-
-    // 2. Defensive Validation: reject incomplete inputs with 400 Bad Request
-    if (!candidateName || typeof candidateName !== "string" || candidateName.trim() === "") {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "BAD_REQUEST",
-            message: "Field 'candidateName' is required and must be a valid string.",
-          },
-        },
-        { status: 400 }
-      );
-    }
-
-    if (!jobTitle || typeof jobTitle !== "string" || jobTitle.trim() === "") {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "BAD_REQUEST",
-            message: "Field 'jobTitle' is required and must be a valid string.",
-          },
-        },
-        { status: 400 }
-      );
-    }
-
-    // 3. Persist record to PostgreSQL via Prisma
-    const newApplication = await prisma.application.create({
-      data: {
-        candidateName: candidateName.trim(),
-        jobTitle: jobTitle.trim(),
-        status: "PENDING",
-      },
-    });
-
-    // 4. Return 201 Created with the created entity
-    return NextResponse.json(
-      {
-        success: true,
-        data: newApplication,
-      },
-      { status: 201 }
-    );
-  } catch (error) {
-    console.error("POST /api/applications error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected database error occurred during creation.",
-        },
-      },
+      { success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch applications.' } },
       { status: 500 }
     );
   }

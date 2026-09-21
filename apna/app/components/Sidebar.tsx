@@ -61,9 +61,15 @@ export default function Sidebar() {
         </nav>
       </div>
 
-      <div className="px-6 py-6 border-t border-gray-200">
-        <button className="flex items-center gap-2 text-sm text-gray-500">
-          <HelpCircle size={18} />
+      <div className="px-4 py-5 border-t border-gray-100 space-y-2">
+        <Link
+          href="/employer"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold transition-colors"
+        >
+          Switch to Employer Portal →
+        </Link>
+        <button className="flex items-center gap-2 text-xs text-gray-500 hover:text-gray-700 px-2 py-1">
+          <HelpCircle size={15} />
           Help & Support
         </button>
       </div>

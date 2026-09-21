@@ -1,11 +1,15 @@
 import { MoreVertical, ChevronRight, Calendar, Archive } from "lucide-react";
 
 // Colors change depending on the application's status
-const statusStyles: Record<string, { border: string; dot: string; text: string }> = {
-  Pending: { border: "border-l-orange-400", dot: "bg-orange-400", text: "text-orange-500" },
-  Viewed: { border: "border-l-blue-400", dot: "bg-blue-400", text: "text-blue-500" },
-  Shortlisted: { border: "border-l-green-400", dot: "bg-green-500", text: "text-green-600" },
-  "Not Selected": { border: "border-l-red-400", dot: "bg-red-400", text: "text-red-500" },
+const statusStyles: Record<string, { border: string; dot: string; text: string; label: string }> = {
+  PENDING: { border: "border-l-orange-400", dot: "bg-orange-400", text: "text-orange-500", label: "Pending" },
+  VIEWED: { border: "border-l-blue-400", dot: "bg-blue-400", text: "text-blue-500", label: "Viewed" },
+  SHORTLISTED: { border: "border-l-green-400", dot: "bg-green-500", text: "text-green-600", label: "Shortlisted" },
+  REJECTED: { border: "border-l-red-400", dot: "bg-red-400", text: "text-red-500", label: "Rejected" },
+  Pending: { border: "border-l-orange-400", dot: "bg-orange-400", text: "text-orange-500", label: "Pending" },
+  Viewed: { border: "border-l-blue-400", dot: "bg-blue-400", text: "text-blue-500", label: "Viewed" },
+  Shortlisted: { border: "border-l-green-400", dot: "bg-green-500", text: "text-green-600", label: "Shortlisted" },
+  "Not Selected": { border: "border-l-red-400", dot: "bg-red-400", text: "text-red-500", label: "Rejected" },
 };
 
 // Shows ONE application card. Data comes in through props.
@@ -20,15 +24,22 @@ type ApplicationCardProps = {
 };
 
 export default function ApplicationCard(props: ApplicationCardProps) {
-  const style = statusStyles[props.status];
+  const style = statusStyles[props.status] || {
+    border: "border-l-gray-300",
+    dot: "bg-gray-400",
+    text: "text-gray-600",
+    label: props.status,
+  };
 
   return (
-    <div className={`bg-white border border-gray-200 border-l-4 ${style.border} rounded-xl p-5`}>
+    <div className={`bg-white border border-gray-200 border-l-4 ${style.border} rounded-xl p-5 shadow-xs hover:shadow-sm transition-shadow`}>
       
       {/* Top row: logo, title, company + 3-dot menu */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gray-100 shrink-0" />
+          <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 font-bold flex items-center justify-center shrink-0">
+            {props.company?.[0]?.toUpperCase() || "J"}
+          </div>
           <div>
             <h3 className="font-semibold text-gray-900">{props.title}</h3>
             <p className="text-sm text-gray-500">
@@ -36,14 +47,14 @@ export default function ApplicationCard(props: ApplicationCardProps) {
             </p>
           </div>
         </div>
-        <MoreVertical size={16} className="text-gray-400" />
+        <MoreVertical size={16} className="text-gray-400 cursor-pointer hover:text-gray-600" />
       </div>
 
       {/* Status + applied date */}
       <div className="flex items-center gap-2 text-sm mb-3">
-        <span className={`flex items-center gap-1 font-medium ${style.text}`}>
-          <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
-          {props.status}
+        <span className={`flex items-center gap-1.5 font-medium ${style.text}`}>
+          <span className={`w-2 h-2 rounded-full ${style.dot}`} />
+          {style.label}
         </span>
         <span className="text-gray-400">• Applied: {props.appliedDate}</span>
       </div>
