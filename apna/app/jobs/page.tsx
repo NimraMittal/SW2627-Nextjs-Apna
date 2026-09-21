@@ -55,7 +55,7 @@ export default function JobsPage() {
   }, []);
 
   useEffect(() => {
-    loadData();
+    void Promise.resolve().then(() => loadData());
   }, [loadData]);
 
   async function handleApply(jobId: string) {

@@ -49,7 +49,7 @@ export default function NotificationsPage() {
   }, []);
 
   useEffect(() => {
-    loadNotifications();
+    void Promise.resolve().then(() => loadNotifications());
   }, [loadNotifications]);
 
   // Connect to SSE for real-time notifications
