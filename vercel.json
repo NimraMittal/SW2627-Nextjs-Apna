@@ -1,0 +1,5 @@
+{
+  "framework": "nextjs",
+  "installCommand": "cd apna && npm install",
+  "buildCommand": "cd apna && npm run build"
+}
